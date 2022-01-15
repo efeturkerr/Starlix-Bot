@@ -121,6 +121,52 @@ Client.on("channelDelete", async chnl =>{
     }
 })
 
+Client.on("userUpdate", async function(oldMember, newMember){
+    var settings = await starlix.collection.findOne({guildID:"931191058967179264"})
+    var guild = Client.guilds.cache.get("931191058967179264")
+    if(settings["tagkontrolayarlar"][0]["tagkontrol"]){
+        for(var i = 0; i<settings["tagkontrolayarlar"][0]["tags"].length;i++){
+            if(newMember.username.includes(settings["tagkontrolayarlar"][0]["tags"][i]) == true && oldMember.username.includes(settings["tagkontrolayarlar"][0]["tags"][i]) == false){
+                var role = guild.roles.cache.get(settings["tagkontrolayarlar"][0]["verilecekrol"])
+                var chnl = guild.channels.cache.get(settings["tagkontrolayarlar"][0]["tagkanal"])
+                var errchnl = guild.channels.cache.find(chnl => chnl.type == "text");
+                if(!role) return errchnl.send("<@"+guild.ownerID+">, Tag Kontrol Sisteminin Kullandığı Bir Rolü Sildiniz. Sistemin Tekrar Çalışması İçin Sistemi Kapatıp Tekrar Kurmalısınız.")
+                if(!chnl) errchnl.send("<@"+guild.ownerID+">, Tag Alanların Kayıtlarının Tutulduğu Kanalı Sildiniz. Sistemin Tekrar Düzgün Çalışması İçin Sistemi Kapatıp Tekar Kurmalısınız.")
+                guild.members.cache.get(newMember.id).roles.add(role)
+                chnl.send("<@"+newMember.id+"> Tag Aldı, Teşekkürler!")
+                break;
+            }
+            
+            else{
+                if(settings["tagkontrolayarlar"][0]["discriminatortags"].includes("#"+newMember.discriminator) && settings["tagkontrolayarlar"][0]["discriminatortags"].includes("#"+oldMember.discriminator)==false&&newMember.username.includes(settings["tagkontrolayarlar"][0]["tags"][i]) == false){
+                    var role = guild.roles.cache.get(settings["tagkontrolayarlar"][0]["verilecekrol"])
+                    var chnl = guild.channels.cache.get(settings["tagkontrolayarlar"][0]["tagkanal"])
+                    var errchnl = guild.channels.cache.find(chnl => chnl.type == "text");
+                    if(!role) return errchnl.send("<@"+guild.ownerID+">, Tag Kontrol Sisteminin Kullandığı Bir Rolü Sildiniz. Sistemin Tekrar Çalışması İçin Sistemi Kapatıp Tekrar Kurmalısınız.")
+                    if(!chnl) errchnl.send("<@"+guild.ownerID+">, Tag Alanların Kayıtlarının Tutulduğu Kanalı Sildiniz. Sistemin Tekrar Düzgün Çalışması İçin Sistemi Kapatıp Tekar Kurmalısınız.")
+                    guild.members.cache.get(newMember.id).roles.add(role)
+                    chnl.send("<@"+newMember.id+">, Tag Aldı, Teşekkürler!")
+                    break;
+                }
+                else if(settings["tagkontrolayarlar"][0]["discriminatortags"].includes("#"+newMember.discriminator)==false && settings["tagkontrolayarlar"][0]["discriminatortags"].includes("#"+oldMember.discriminator)==true ){
+                    if(newMember.username.includes(settings["tagkontrolayarlar"][0]["tags"][i]) == false){
+                        var role = guild.roles.cache.get(settings["tagkontrolayarlar"][0]["verilecekrol"])
+                        var chnl = guild.channels.cache.get(settings["tagkontrolayarlar"][0]["tagkanal"])
+                        var errchnl = guild.channels.cache.find(chnl => chnl.type == "text");
+                        if(!role) return errchnl.send("<@"+guild.ownerID+">, Tag Kontrol Sisteminin Kullandığı Bir Rolü Sildiniz. Sistemin Tekrar Çalışması İçin Sistemi Kapatıp Tekrar Kurmalısınız.")
+                        if(!chnl) errchnl.send("<@"+guild.ownerID+">, Tag Alanların Kayıtlarının Tutulduğu Kanalı Sildiniz. Sistemin Tekrar Düzgün Çalışması İçin Sistemi Kapatıp Tekar Kurmalısınız.")
+                        guild.members.cache.get(newMember.id).roles.remove(role)
+                        chnl.send("<@"+newMember.id+">, Tagını Çıkardı")
+                        break;
+                        
+                    }
+                    break;
+                }
+            }
+        }
+    }
+})
+
 Client.on("roleDelete", async (role) =>{ 
     var settings = await starlix.collection.findOne({guildID:role.guild.id})
     if(settings.rolkoruma){
